@@ -7,9 +7,14 @@ import { X, TrendingUp, TrendingDown, Activity, Loader } from "lucide-react";
 import { getChartDataWithFallback } from "../api/marketApi";
 
 const RANGES = [
-  { label: "1W", days: 7 },
-  { label: "1M", days: 30 },
-  { label: "3M", days: 90 },
+  { label: "1W" },
+  { label: "1M" },
+  { label: "3M" },
+  { label: "6M" },
+  { label: "12M" },
+  { label: "3Y" },
+  { label: "5Y" },
+  { label: "10Y" },
 ];
 
 function formatPrice(price, symbol) {
@@ -111,6 +116,18 @@ export default function ChartPanel({ index, quote, onClose }) {
             </div>
           </>
         )}
+        <div className="stat-pill">
+          <span className="stat-label">Trailing P/E</span>
+          <span className="stat-value">
+            {quote.trailingPE != null ? `${quote.trailingPE.toFixed(1)}x` : "—"}
+          </span>
+        </div>
+        <div className="stat-pill">
+          <span className="stat-label">Forward P/E</span>
+          <span className="stat-value">
+            {quote.forwardPE != null ? `${quote.forwardPE.toFixed(1)}x` : "—"}
+          </span>
+        </div>
       </div>
 
       <div className="range-tabs">

@@ -48,7 +48,7 @@ export async function getChartDataWithFallback(symbol, rangeLabel) {
     throw new Error("Empty chart result");
   } catch (err) {
     console.warn(`Live chart fetch failed for ${symbol}, using mock:`, err.message);
-    const days = rangeLabel === "1W" ? 7 : rangeLabel === "1M" ? 30 : 90;
+    const days = { "1W": 7, "1M": 30, "3M": 90, "6M": 180, "12M": 365, "3Y": 1095, "5Y": 1825, "10Y": 3650 }[rangeLabel] ?? 30;
     return generateHistoricalData(symbol, days);
   }
 }

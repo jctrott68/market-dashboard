@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --port 5174",
-    "server": "node server.js",
+    "server": "API_PORT=3001 node server.js",
     "dev:all": "concurrently \"npm run server\" \"npm run dev\"",
     "build": "vite build",
     "lint": "eslint .",
@@ -14,11 +14,13 @@
   "dependencies": {
     "concurrently": "^9.2.1",
     "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "lucide-react": "^1.8.0",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "recharts": "^3.8.1",
+    "rss-parser": "^3.13.0",
     "yahoo-finance2": "^3.14.0"
   },
   "devDependencies": {

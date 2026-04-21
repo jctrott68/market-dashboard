@@ -5,6 +5,7 @@ import ChartPanel from "./components/ChartPanel";
 import MarketSummary from "./components/MarketSummary";
 import NewsSection from "./components/NewsSection";
 import MyStocks from "./components/MyStocks";
+import Economy from "./components/Economy";
 import { INDEXES, getCurrentQuotes, MARKET_STATUS } from "./data/marketData";
 import { getQuotesWithFallback } from "./api/marketApi";
 import "./App.css";
@@ -141,6 +142,8 @@ export default function App() {
             onClose={() => setSelectedIndex(null)}
           />
         )}
+
+        <Economy />
 
         <MyStocks />
 

@@ -3,14 +3,20 @@ export const INDEXES = [
   { symbol: "^DJI", name: "Dow Jones", short: "DJIA", category: "equity" },
   { symbol: "^IXIC", name: "NASDAQ", short: "NDX", category: "equity" },
   { symbol: "^RUT", name: "Russell 2000", short: "RUT", category: "equity" },
+  { symbol: "EFA", name: "Developed Intl", short: "EAFE", category: "equity" },
+  { symbol: "EEM", name: "Emerging Markets", short: "EM", category: "equity" },
   { symbol: "^VIX", name: "VIX", short: "VIX", category: "volatility" },
   { symbol: "^TNX", name: "10Y Treasury", short: "10YR", category: "bonds" },
   { symbol: "^TYX", name: "30Y Treasury", short: "30YR", category: "bonds" },
+  { symbol: "MUB", name: "Muni Bonds", short: "MUB", category: "bonds" },
   { symbol: "GC=F", name: "Gold", short: "GOLD", category: "commodities" },
   { symbol: "CL=F", name: "Crude Oil", short: "OIL", category: "commodities" },
   { symbol: "BTC-USD", name: "Bitcoin", short: "BTC", category: "crypto" },
   { symbol: "ETH-USD", name: "Ethereum", short: "ETH", category: "crypto" },
   { symbol: "DX-Y.NYB", name: "US Dollar", short: "DXY", category: "fx" },
+  { symbol: "GBPUSD=X", name: "Sterling", short: "GBP", category: "fx" },
+  { symbol: "EURUSD=X", name: "Euro", short: "EUR", category: "fx" },
+  { symbol: "JPY=X", name: "Yen", short: "JPY", category: "fx" },
 ];
 
 function seededRandom(seed) {
@@ -48,7 +54,7 @@ export function generateHistoricalData(symbol, days = 90) {
     const change = (rand() - 0.48) * vol * price;
     price = Math.max(price + change, price * 0.5);
     data.push({
-      date: date.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+      date: date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
       fullDate: date.toISOString().split("T")[0],
       price: parseFloat(price.toFixed(symbol === "^TNX" || symbol === "^TYX" ? 3 : 2)),
       volume: Math.floor(rand() * 1e9 + 5e8),
