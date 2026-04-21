@@ -9,7 +9,9 @@ const yahooFinance = new YahooFinance({
 });
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: process.env.FRONTEND_URL ? process.env.FRONTEND_URL.split(",") : "*",
+}));
 
 const SYMBOLS = [
   "^GSPC", "^DJI", "^IXIC", "^RUT",
