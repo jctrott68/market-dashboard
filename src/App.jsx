@@ -7,7 +7,7 @@ import NewsSection from "./components/NewsSection";
 import MyStocks from "./components/MyStocks";
 import Economy from "./components/Economy";
 import { INDEXES, getCurrentQuotes, MARKET_STATUS } from "./data/marketData";
-import { getQuotesWithFallback } from "./api/marketApi";
+import { getQuotesWithFallback, getBatchQuotes, lookupTicker } from "./api/marketApi";
 import "./App.css";
 
 const CATEGORY_ORDER = ["equity", "volatility", "bonds", "commodities", "crypto", "fx"];
@@ -16,6 +16,12 @@ const CATEGORY_LABELS = {
   commodities: "Commodities", crypto: "Crypto", fx: "Currencies",
 };
 const AUTO_REFRESH_MS = 30_000;
+const STORAGE_KEY = "myStocks";
+
+function loadSavedStocks() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "[]"); }
+  catch { return []; }
+}
 
 function isMarketOpen() {
   const now = new Date();
@@ -34,13 +40,17 @@ export default function App() {
   const [refreshing, setRefreshing] = useState(false);
   const [isLive, setIsLive] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  // My Stocks — lifted up so MarketSummary can use them
+  const [myStocks, setMyStocks] = useState(loadSavedStocks);
+  const [stockQuotes, setStockQuotes] = useState({});
+
   const timerRef = useRef(null);
 
   const fetchQuotes = useCallback(async (showSpinner = false) => {
     if (showSpinner) setRefreshing(true);
     try {
       const data = await getQuotesWithFallback(INDEXES);
-      // detect live vs mock by checking if any price differs from initial mock
       const mockQuotes = getCurrentQuotes();
       const firstSymbol = INDEXES[0].symbol;
       const live = data[firstSymbol]?.price !== mockQuotes[firstSymbol]?.price;
@@ -53,20 +63,52 @@ export default function App() {
     }
   }, []);
 
+  const refreshStockQuotes = useCallback(async (stockList) => {
+    if (!stockList.length) { setStockQuotes({}); return; }
+    try {
+      const data = await getBatchQuotes(stockList.map((s) => s.symbol));
+      setStockQuotes(data);
+    } catch { /* leave stale */ }
+  }, []);
+
   // initial load
-  useEffect(() => {
-    fetchQuotes();
-  }, [fetchQuotes]);
+  useEffect(() => { fetchQuotes(); }, [fetchQuotes]);
+
+  // fetch stock quotes whenever list changes
+  useEffect(() => { refreshStockQuotes(myStocks); }, [myStocks, refreshStockQuotes]);
 
   // auto-refresh every 30s when market is open
   useEffect(() => {
     timerRef.current = setInterval(() => {
-      if (isMarketOpen()) fetchQuotes();
+      if (isMarketOpen()) {
+        fetchQuotes();
+        refreshStockQuotes(myStocks);
+      }
     }, AUTO_REFRESH_MS);
     return () => clearInterval(timerRef.current);
-  }, [fetchQuotes]);
+  }, [fetchQuotes, refreshStockQuotes, myStocks]);
 
-  const handleRefresh = () => fetchQuotes(true);
+  const handleRefresh = () => {
+    fetchQuotes(true);
+    refreshStockQuotes(myStocks);
+  };
+
+  const handleAddStock = async (symbol) => {
+    if (myStocks.some((s) => s.symbol === symbol)) throw new Error(`${symbol} is already in your list.`);
+    const data = await lookupTicker(symbol);
+    const next = [...myStocks, { symbol: data.symbol, name: data.name }];
+    setMyStocks(next);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    setStockQuotes((q) => ({ ...q, [data.symbol]: data }));
+    return data;
+  };
+
+  const handleRemoveStock = (symbol) => {
+    const next = myStocks.filter((s) => s.symbol !== symbol);
+    setMyStocks(next);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    setStockQuotes((q) => { const c = { ...q }; delete c[symbol]; return c; });
+  };
 
   const handleCardClick = (index) => {
     setSelectedIndex((prev) => (prev?.symbol === index.symbol ? null : index));
@@ -113,7 +155,7 @@ export default function App() {
       </header>
 
       <main className="app-main">
-        <MarketSummary quotes={quotes} />
+        <MarketSummary quotes={quotes} myStocks={myStocks} stockQuotes={stockQuotes} />
 
         <div className={`indexes-section ${loading ? "loading" : ""}`}>
           {groupedIndexes.map(({ category, indexes }) => (
@@ -145,7 +187,12 @@ export default function App() {
 
         <Economy />
 
-        <MyStocks />
+        <MyStocks
+          stocks={myStocks}
+          quotes={stockQuotes}
+          onAdd={handleAddStock}
+          onRemove={handleRemoveStock}
+        />
 
         <NewsSection />
       </main>

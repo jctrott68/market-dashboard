@@ -1,17 +1,6 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import { Plus, X, TrendingUp, TrendingDown, Minus, Loader, Search } from "lucide-react";
-import { lookupTicker, getBatchQuotes } from "../api/marketApi";
 import ChartPanel from "./ChartPanel";
-
-const STORAGE_KEY = "myStocks";
-
-function loadSaved() {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "[]");
-  } catch {
-    return [];
-  }
-}
 
 function formatPrice(price) {
   if (price >= 10000) return `$${price.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
@@ -27,20 +16,9 @@ function StockCard({ stock, quote, onRemove, onSelect, isSelected }) {
   const isUp = change > 0;
   const isFlat = Math.abs(changePct) < 0.005;
 
-  const handleRemoveClick = (e) => {
-    e.stopPropagation();
-    setConfirming(true);
-  };
-
-  const handleConfirm = (e) => {
-    e.stopPropagation();
-    onRemove(stock.symbol);
-  };
-
-  const handleCancel = (e) => {
-    e.stopPropagation();
-    setConfirming(false);
-  };
+  const handleRemoveClick = (e) => { e.stopPropagation(); setConfirming(true); };
+  const handleConfirm = (e) => { e.stopPropagation(); onRemove(stock.symbol); };
+  const handleCancel = (e) => { e.stopPropagation(); setConfirming(false); };
 
   return (
     <div className={`my-stock-card ${isSelected ? "selected" : ""} ${confirming ? "confirming" : ""}`} onClick={() => !confirming && onSelect(stock)}>
@@ -53,11 +31,7 @@ function StockCard({ stock, quote, onRemove, onSelect, isSelected }) {
           </div>
         </div>
       ) : (
-        <button
-          className="stock-remove-btn"
-          onClick={handleRemoveClick}
-          title="Remove ticker"
-        >
+        <button className="stock-remove-btn" onClick={handleRemoveClick} title="Remove ticker">
           <X size={12} />
         </button>
       )}
@@ -81,57 +55,25 @@ function StockCard({ stock, quote, onRemove, onSelect, isSelected }) {
   );
 }
 
-export default function MyStocks() {
-  const [stocks, setStocks] = useState(loadSaved);           // [{symbol, name}]
-  const [quotes, setQuotes] = useState({});
+export default function MyStocks({ stocks, quotes, onAdd, onRemove }) {
   const [input, setInput] = useState("");
   const [adding, setAdding] = useState(false);
   const [error, setError] = useState("");
   const [selected, setSelected] = useState(null);
 
-  const refreshQuotes = useCallback(async (stockList) => {
-    if (!stockList.length) return;
-    try {
-      const data = await getBatchQuotes(stockList.map((s) => s.symbol));
-      setQuotes(data);
-    } catch {
-      // leave stale quotes
-    }
-  }, []);
-
-  useEffect(() => {
-    refreshQuotes(stocks);
-  }, [stocks, refreshQuotes]);
-
   const handleAdd = async () => {
     const sym = input.trim().toUpperCase();
     if (!sym) return;
-    if (stocks.some((s) => s.symbol === sym)) {
-      setError(`${sym} is already in your list.`);
-      return;
-    }
     setAdding(true);
     setError("");
     try {
-      const data = await lookupTicker(sym);
-      const next = [...stocks, { symbol: data.symbol, name: data.name }];
-      setStocks(next);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-      setQuotes((q) => ({ ...q, [data.symbol]: data }));
+      await onAdd(sym);
       setInput("");
-    } catch {
-      setError(`"${sym}" not found. Check the ticker symbol and try again.`);
+    } catch (err) {
+      setError(err.message || `"${sym}" not found. Check the ticker symbol and try again.`);
     } finally {
       setAdding(false);
     }
-  };
-
-  const handleRemove = (symbol) => {
-    const next = stocks.filter((s) => s.symbol !== symbol);
-    setStocks(next);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-    setQuotes((q) => { const c = { ...q }; delete c[symbol]; return c; });
-    if (selected?.symbol === symbol) setSelected(null);
   };
 
   const handleSelect = (stock) => {
@@ -181,7 +123,7 @@ export default function MyStocks() {
               key={stock.symbol}
               stock={stock}
               quote={quotes[stock.symbol]}
-              onRemove={handleRemove}
+              onRemove={onRemove}
               onSelect={handleSelect}
               isSelected={selected?.symbol === stock.symbol}
             />
