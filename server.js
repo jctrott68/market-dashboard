@@ -6,6 +6,7 @@ import RSSParser from "rss-parser";
 
 const yahooFinance = new YahooFinance({
   suppressNotices: ["yahooSurvey"],
+  validation: { logErrors: false },
 });
 
 const app = express();
