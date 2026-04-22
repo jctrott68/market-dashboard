@@ -128,23 +128,56 @@ app.get("/api/quotes", async (req, res) => {
 });
 
 // Single symbol lookup — validates ticker and returns quote + display name
+// Uses direct Yahoo Finance fetch with browser headers to avoid cloud IP blocks
+async function fetchYahooQuote(symbol) {
+  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=1d`;
+  const headers = {
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "Accept": "application/json",
+    "Accept-Language": "en-US,en;q=0.9",
+    "Origin": "https://finance.yahoo.com",
+    "Referer": "https://finance.yahoo.com/",
+  };
+  const r = await fetch(url, { headers });
+  if (!r.ok) return null;
+  const json = await r.json();
+  const meta = json?.chart?.result?.[0]?.meta;
+  if (!meta || meta.regularMarketPrice == null) return null;
+  return {
+    symbol:    (meta.symbol ?? symbol).toUpperCase(),
+    name:      meta.longName || meta.shortName || symbol.toUpperCase(),
+    quoteType: meta.instrumentType ?? "EQUITY",
+    price:     meta.regularMarketPrice ?? 0,
+    change:    (meta.regularMarketPrice ?? 0) - (meta.chartPreviousClose ?? 0),
+    changePct: meta.chartPreviousClose
+      ? (((meta.regularMarketPrice - meta.chartPreviousClose) / meta.chartPreviousClose) * 100)
+      : 0,
+    high:      meta.regularMarketDayHigh ?? 0,
+    low:       meta.regularMarketDayLow  ?? 0,
+    open:      meta.regularMarketOpen    ?? 0,
+    volume:    meta.regularMarketVolume  ?? 0,
+    prevClose: meta.chartPreviousClose   ?? 0,
+    trailingPE: null,
+    forwardPE:  null,
+  };
+}
+
 app.get("/api/quote/:symbol", async (req, res) => {
   const { symbol } = req.params;
   try {
-    const r = await yahooFinance.quote(
-      symbol,
-      { fields: [...QUOTE_FIELDS, "longName", "shortName", "quoteType"] },
-      QUOTE_OPTS,
-    );
-    if (!r || r.regularMarketPrice == null) {
-      return res.status(404).json({ error: "Symbol not found" });
+    // Try direct fetch first (works on cloud hosts), fall back to yahoo-finance2
+    let result = await fetchYahooQuote(symbol).catch(() => null);
+    if (!result) {
+      const r = await yahooFinance.quote(symbol, { fields: [...QUOTE_FIELDS, "longName", "shortName", "quoteType"] }, QUOTE_OPTS);
+      if (!r || r.regularMarketPrice == null) return res.status(404).json({ error: "Symbol not found" });
+      result = {
+        symbol:    r.symbol ?? symbol.toUpperCase(),
+        name:      r.longName || r.shortName || symbol.toUpperCase(),
+        quoteType: r.quoteType ?? "EQUITY",
+        ...extractQuote(r),
+      };
     }
-    res.json({
-      symbol:    r.symbol ?? symbol.toUpperCase(),
-      name:      r.longName || r.shortName || symbol.toUpperCase(),
-      quoteType: r.quoteType ?? "EQUITY",
-      ...extractQuote(r),
-    });
+    res.json(result);
   } catch {
     res.status(404).json({ error: "Symbol not found or invalid" });
   }
@@ -156,17 +189,13 @@ app.get("/api/quote-batch", async (req, res) => {
   try {
     const results = await Promise.all(
       symbols.map((s) =>
-        yahooFinance.quote(
-          s,
-          { fields: [...QUOTE_FIELDS, "longName", "shortName"] },
-          QUOTE_OPTS,
-        ).catch(() => null)
+        fetchYahooQuote(s).catch(() => null)
       )
     );
     const out = {};
     results.forEach((r, i) => {
       if (!r) return;
-      out[symbols[i].toUpperCase()] = extractQuote(r);
+      out[symbols[i].toUpperCase()] = r;
     });
     res.json(out);
   } catch (err) {
