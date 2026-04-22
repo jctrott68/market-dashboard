@@ -107,27 +107,37 @@ function StockCard({ stock, quote, onRemove, onSelect, isSelected }) {
 export default function MyStocks({ stocks, quotes, onAdd, onRemove }) {
   const [input, setInput] = useState("");
   const [adding, setAdding] = useState(false);
-  const [error, setError] = useState("");
+  const [errors, setErrors] = useState([]);
   const [selected, setSelected] = useState(null);
 
   const handleAdd = async () => {
-    const sym = input.trim().toUpperCase();
-    if (!sym) return;
-    if (stocks.some((s) => s.symbol === sym)) {
-      setError(`${sym} is already in your list.`);
-      return;
-    }
+    // Parse comma-separated symbols, filter blanks and already-added
+    const symbols = input
+      .split(",")
+      .map((s) => s.trim().toUpperCase())
+      .filter(Boolean);
+    if (!symbols.length) return;
+
     setAdding(true);
-    setError("");
-    try {
-      const data = await lookupTicker(sym);
-      onAdd({ symbol: data.symbol, name: data.name }, data);
-      setInput("");
-    } catch {
-      setError(`"${sym}" not found. Check the ticker and try again.`);
-    } finally {
-      setAdding(false);
+    setErrors([]);
+
+    const failed = [];
+    for (const sym of symbols) {
+      if (stocks.some((s) => s.symbol === sym)) {
+        failed.push(`${sym} is already in your list`);
+        continue;
+      }
+      try {
+        const data = await lookupTicker(sym);
+        onAdd({ symbol: data.symbol, name: data.name }, data);
+      } catch {
+        failed.push(`"${sym}" not found`);
+      }
     }
+
+    setErrors(failed);
+    if (failed.length < symbols.length) setInput(""); // clear if at least one succeeded
+    setAdding(false);
   };
 
   const handleSelect = (stock) => {
@@ -136,26 +146,26 @@ export default function MyStocks({ stocks, quotes, onAdd, onRemove }) {
 
   const handleKey = (e) => {
     if (e.key === "Enter") handleAdd();
-    if (e.key === "Escape") { setInput(""); setError(""); }
+    if (e.key === "Escape") { setInput(""); setErrors([]); }
   };
 
   return (
     <section className="my-stocks-section">
       <div className="section-header">
-        <h2 className="section-title">My Stocks</h2>
+        <h2 className="section-title">Stock Quotes</h2>
         <span className="my-stocks-count">{stocks.length} ticker{stocks.length !== 1 ? "s" : ""}</span>
       </div>
 
       <div className="my-stocks-add-row">
-        <div className={`ticker-input-wrap ${error ? "has-error" : ""}`}>
+        <div className={`ticker-input-wrap ${errors.length ? "has-error" : ""}`}>
           <Search size={14} className="input-icon" />
           <input
             className="ticker-input"
             value={input}
-            onChange={(e) => { setInput(e.target.value.toUpperCase()); setError(""); }}
+            onChange={(e) => { setInput(e.target.value.toUpperCase()); setErrors([]); }}
             onKeyDown={handleKey}
-            placeholder="Add ticker — e.g. AAPL, MSFT, TSLA"
-            maxLength={12}
+            placeholder="Add tickers — e.g. AAPL, MSFT, TSLA"
+            maxLength={100}
             disabled={adding}
           />
         </div>
@@ -164,11 +174,13 @@ export default function MyStocks({ stocks, quotes, onAdd, onRemove }) {
           <span>{adding ? "Looking up…" : "Add"}</span>
         </button>
       </div>
-      {error && <p className="ticker-error">{error}</p>}
+      {errors.length > 0 && (
+        <p className="ticker-error">{errors.join(" · ")}</p>
+      )}
 
       {stocks.length === 0 ? (
         <div className="my-stocks-empty">
-          <p>No tickers yet. Add symbols above to start tracking.</p>
+          <p>No tickers yet. Add one or more symbols above, separated by commas.</p>
         </div>
       ) : (
         <div className="my-stocks-grid">
