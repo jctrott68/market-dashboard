@@ -49,6 +49,7 @@ const NEWS_FEEDS = [
   { url: "https://www.espn.com/espn/rss/news",                           source: "ESPN",          category: "sports"   },
   { url: "https://fred.stlouisfed.org/feed/releases/",                   source: "FRED",          category: "economy"  },
   { url: "https://www.stlouisfed.org/rss/news.aspx",                     source: "St. Louis Fed", category: "economy"  },
+  { url: "https://taxfoundation.org/feed/",                              source: "Tax Foundation", category: "politics" },
 ];
 
 // Cache news for 5 minutes to avoid hammering feeds
