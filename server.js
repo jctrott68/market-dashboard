@@ -187,16 +187,12 @@ app.get("/api/quote-batch", async (req, res) => {
   const symbols = (req.query.symbols ?? "").split(",").filter(Boolean);
   if (!symbols.length) return res.json({});
   try {
-    const results = await Promise.all(
-      symbols.map((s) =>
-        fetchYahooQuote(s).catch(() => null)
-      )
-    );
     const out = {};
-    results.forEach((r, i) => {
-      if (!r) return;
-      out[symbols[i].toUpperCase()] = r;
-    });
+    for (const s of symbols) {
+      const r = await fetchYahooQuote(s).catch(() => null);
+      if (!r) continue;
+      out[s.toUpperCase()] = r;
+    }
     res.json(out);
   } catch (err) {
     res.status(500).json({ error: err.message });
