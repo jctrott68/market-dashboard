@@ -16,6 +16,7 @@ app.use(cors({
 const SYMBOLS = [
   "^GSPC", "^DJI", "^IXIC", "^RUT",
   "EFA", "EEM",
+  "XLK", "XLV", "XLF", "XLY", "XLC", "XLI", "XLP", "XLE", "XLU", "XLRE", "XLB",
   "^VIX", "^TNX", "^TYX", "MUB",
   "GC=F", "CL=F", "NG=F", "HG=F", "SI=F", "KC=F", "ZS=F", "ZC=F",
   "BTC-USD", "ETH-USD",

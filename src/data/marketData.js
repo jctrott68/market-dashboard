@@ -5,6 +5,17 @@ export const INDEXES = [
   { symbol: "^RUT", name: "Russell 2000", short: "RUT", category: "equity" },
   { symbol: "EFA", name: "Developed Intl", short: "EAFE", category: "equity" },
   { symbol: "EEM", name: "Emerging Markets", short: "EM", category: "equity" },
+  { symbol: "XLK",  name: "Info Technology",      short: "XLK",  category: "sectors" },
+  { symbol: "XLV",  name: "Health Care",           short: "XLV",  category: "sectors" },
+  { symbol: "XLF",  name: "Financials",            short: "XLF",  category: "sectors" },
+  { symbol: "XLY",  name: "Consumer Discret.",     short: "XLY",  category: "sectors" },
+  { symbol: "XLC",  name: "Comm. Services",        short: "XLC",  category: "sectors" },
+  { symbol: "XLI",  name: "Industrials",           short: "XLI",  category: "sectors" },
+  { symbol: "XLP",  name: "Consumer Staples",      short: "XLP",  category: "sectors" },
+  { symbol: "XLE",  name: "Energy",                short: "XLE",  category: "sectors" },
+  { symbol: "XLU",  name: "Utilities",             short: "XLU",  category: "sectors" },
+  { symbol: "XLRE", name: "Real Estate",           short: "XLRE", category: "sectors" },
+  { symbol: "XLB",  name: "Materials",             short: "XLB",  category: "sectors" },
   { symbol: "^VIX", name: "VIX", short: "VIX", category: "volatility" },
   { symbol: "^TNX", name: "10Y Treasury", short: "10YR", category: "bonds" },
   { symbol: "^TYX", name: "30Y Treasury", short: "30YR", category: "bonds" },
@@ -36,6 +47,8 @@ function seededRandom(seed) {
 export function generateHistoricalData(symbol, days = 90) {
   const baseValues = {
     "^GSPC": 5200, "^DJI": 39000, "^IXIC": 16200, "^RUT": 2050,
+    "XLK": 220, "XLV": 145, "XLF": 42, "XLY": 175, "XLC": 88,
+    "XLI": 115, "XLP": 78, "XLE": 90, "XLU": 68, "XLRE": 38, "XLB": 85,
     "^VIX": 18, "^TNX": 4.35, "^TYX": 4.6, "GC=F": 2310,
     "CL=F": 82, "NG=F": 2.1, "HG=F": 4.2, "SI=F": 27,
     "KC=F": 195, "ZS=F": 1180, "ZC=F": 450,
@@ -43,6 +56,8 @@ export function generateHistoricalData(symbol, days = 90) {
   };
   const volatilities = {
     "^GSPC": 0.008, "^DJI": 0.007, "^IXIC": 0.012, "^RUT": 0.014,
+    "XLK": 0.012, "XLV": 0.008, "XLF": 0.011, "XLY": 0.013, "XLC": 0.011,
+    "XLI": 0.009, "XLP": 0.006, "XLE": 0.015, "XLU": 0.007, "XLRE": 0.01, "XLB": 0.01,
     "^VIX": 0.06, "^TNX": 0.012, "^TYX": 0.01, "GC=F": 0.009,
     "CL=F": 0.018, "NG=F": 0.03, "HG=F": 0.015, "SI=F": 0.018,
     "KC=F": 0.02, "ZS=F": 0.012, "ZC=F": 0.013,

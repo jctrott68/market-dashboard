@@ -5,6 +5,7 @@ import { getChartDataWithFallback } from "../api/marketApi";
 
 const CATEGORY_COLORS = {
   equity: "#3b82f6",
+  sectors: "#6366f1",
   bonds: "#8b5cf6",
   volatility: "#f59e0b",
   commodities: "#10b981",
