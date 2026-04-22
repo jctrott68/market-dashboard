@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Plus, X, TrendingUp, TrendingDown, Minus, Loader, Search } from "lucide-react";
+import { lookupTicker } from "../api/marketApi";
 import ChartPanel from "./ChartPanel";
 
 function formatPrice(price) {
@@ -64,13 +65,18 @@ export default function MyStocks({ stocks, quotes, onAdd, onRemove }) {
   const handleAdd = async () => {
     const sym = input.trim().toUpperCase();
     if (!sym) return;
+    if (stocks.some((s) => s.symbol === sym)) {
+      setError(`${sym} is already in your list.`);
+      return;
+    }
     setAdding(true);
     setError("");
     try {
-      await onAdd(sym);
+      const data = await lookupTicker(sym);
+      onAdd({ symbol: data.symbol, name: data.name }, data);
       setInput("");
-    } catch (err) {
-      setError(err.message || `"${sym}" not found. Check the ticker symbol and try again.`);
+    } catch {
+      setError(`"${sym}" not found. Check the ticker and try again.`);
     } finally {
       setAdding(false);
     }

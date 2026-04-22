@@ -7,7 +7,7 @@ import NewsSection from "./components/NewsSection";
 import MyStocks from "./components/MyStocks";
 import Economy from "./components/Economy";
 import { INDEXES, getCurrentQuotes, MARKET_STATUS } from "./data/marketData";
-import { getQuotesWithFallback, getBatchQuotes, lookupTicker } from "./api/marketApi";
+import { getQuotesWithFallback, getBatchQuotes } from "./api/marketApi";
 import "./App.css";
 
 const CATEGORY_ORDER = ["equity", "sectors", "bonds", "commodities", "crypto", "fx"];
@@ -93,14 +93,11 @@ export default function App() {
     refreshStockQuotes(myStocks);
   };
 
-  const handleAddStock = async (symbol) => {
-    if (myStocks.some((s) => s.symbol === symbol)) throw new Error(`${symbol} is already in your list.`);
-    const data = await lookupTicker(symbol);
-    const next = [...myStocks, { symbol: data.symbol, name: data.name }];
+  const handleAddStock = (stock, quote) => {
+    const next = [...myStocks, stock];
     setMyStocks(next);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-    setStockQuotes((q) => ({ ...q, [data.symbol]: data }));
-    return data;
+    if (quote) setStockQuotes((q) => ({ ...q, [stock.symbol]: quote }));
   };
 
   const handleRemoveStock = (symbol) => {
