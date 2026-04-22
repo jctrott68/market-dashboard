@@ -189,7 +189,13 @@ app.get("/api/quote-batch", async (req, res) => {
   try {
     const out = {};
     for (const s of symbols) {
-      const r = await fetchYahooQuote(s).catch(() => null);
+      let r = await fetchYahooQuote(s).catch(() => null);
+      if (!r) {
+        // Fallback to yahoo-finance2
+        r = await yahooFinance.quote(s, { fields: [...QUOTE_FIELDS, "longName", "shortName"] }, QUOTE_OPTS)
+          .then((q) => q ? { symbol: s.toUpperCase(), name: q.longName || q.shortName || s, ...extractQuote(q) } : null)
+          .catch(() => null);
+      }
       if (!r) continue;
       out[s.toUpperCase()] = r;
     }
