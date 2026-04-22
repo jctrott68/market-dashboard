@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, X, TrendingUp, TrendingDown, Minus, Loader, Search } from "lucide-react";
-import { lookupTicker } from "../api/marketApi";
+import { lookupTicker, getChartDataWithFallback } from "../api/marketApi";
+import { AreaChart, Area, ResponsiveContainer, Tooltip, YAxis } from "recharts";
 import ChartPanel from "./ChartPanel";
 
 function formatPrice(price) {
@@ -11,11 +12,21 @@ function formatPrice(price) {
 
 function StockCard({ stock, quote, onRemove, onSelect, isSelected }) {
   const [confirming, setConfirming] = useState(false);
+  const [chartData, setChartData] = useState([]);
   const change = quote?.change ?? 0;
   const changePct = quote?.changePct ?? 0;
   const price = quote?.price ?? null;
   const isUp = change > 0;
   const isFlat = Math.abs(changePct) < 0.005;
+  const color = isFlat ? "#94a3b8" : isUp ? "#10b981" : "#ef4444";
+
+  useEffect(() => {
+    let cancelled = false;
+    getChartDataWithFallback(stock.symbol, "12M").then((data) => {
+      if (!cancelled) setChartData(data);
+    });
+    return () => { cancelled = true; };
+  }, [stock.symbol]);
 
   const handleRemoveClick = (e) => { e.stopPropagation(); setConfirming(true); };
   const handleConfirm = (e) => { e.stopPropagation(); onRemove(stock.symbol); };
@@ -51,6 +62,43 @@ function StockCard({ stock, quote, onRemove, onSelect, isSelected }) {
         </>
       ) : (
         <div className="card-price-loading"><Loader size={14} className="spin" /></div>
+      )}
+
+      {chartData.length > 0 && (
+        <div className="card-sparkline">
+          <ResponsiveContainer width="100%" height={50}>
+            <AreaChart data={chartData} margin={{ top: 4, right: 0, left: 0, bottom: 0 }}>
+              <defs>
+                <linearGradient id={`grad-${stock.symbol}`} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={color} stopOpacity={0.3} />
+                  <stop offset="95%" stopColor={color} stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <YAxis domain={["auto", "auto"]} hide />
+              <Tooltip
+                content={({ active, payload }) => {
+                  if (!active || !payload?.length) return null;
+                  const { date, price: p } = payload[0].payload;
+                  return (
+                    <div className="card-spark-tooltip">
+                      <div className="card-spark-date">{date}</div>
+                      <div>{formatPrice(p)}</div>
+                    </div>
+                  );
+                }}
+              />
+              <Area
+                type="monotone"
+                dataKey="price"
+                stroke={color}
+                strokeWidth={1.5}
+                fill={`url(#grad-${stock.symbol})`}
+                dot={false}
+                isAnimationActive={false}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
       )}
     </div>
   );
