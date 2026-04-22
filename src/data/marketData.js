@@ -11,6 +11,12 @@ export const INDEXES = [
   { symbol: "MUB", name: "Muni Bonds", short: "MUB", category: "bonds" },
   { symbol: "GC=F", name: "Gold", short: "GOLD", category: "commodities" },
   { symbol: "CL=F", name: "Crude Oil", short: "OIL", category: "commodities" },
+  { symbol: "NG=F", name: "Natural Gas", short: "NGAS", category: "commodities" },
+  { symbol: "HG=F", name: "Copper", short: "COPR", category: "commodities" },
+  { symbol: "SI=F", name: "Silver", short: "SLVR", category: "commodities" },
+  { symbol: "KC=F", name: "Coffee", short: "COFF", category: "commodities" },
+  { symbol: "ZS=F", name: "Soybeans", short: "SOYB", category: "commodities" },
+  { symbol: "ZC=F", name: "Corn", short: "CORN", category: "commodities" },
   { symbol: "BTC-USD", name: "Bitcoin", short: "BTC", category: "crypto" },
   { symbol: "ETH-USD", name: "Ethereum", short: "ETH", category: "crypto" },
   { symbol: "DX-Y.NYB", name: "US Dollar", short: "DXY", category: "fx" },
@@ -31,12 +37,16 @@ export function generateHistoricalData(symbol, days = 90) {
   const baseValues = {
     "^GSPC": 5200, "^DJI": 39000, "^IXIC": 16200, "^RUT": 2050,
     "^VIX": 18, "^TNX": 4.35, "^TYX": 4.6, "GC=F": 2310,
-    "CL=F": 82, "BTC-USD": 68000, "ETH-USD": 3400, "DX-Y.NYB": 104,
+    "CL=F": 82, "NG=F": 2.1, "HG=F": 4.2, "SI=F": 27,
+    "KC=F": 195, "ZS=F": 1180, "ZC=F": 450,
+    "BTC-USD": 68000, "ETH-USD": 3400, "DX-Y.NYB": 104,
   };
   const volatilities = {
     "^GSPC": 0.008, "^DJI": 0.007, "^IXIC": 0.012, "^RUT": 0.014,
     "^VIX": 0.06, "^TNX": 0.012, "^TYX": 0.01, "GC=F": 0.009,
-    "CL=F": 0.018, "BTC-USD": 0.035, "ETH-USD": 0.045, "DX-Y.NYB": 0.004,
+    "CL=F": 0.018, "NG=F": 0.03, "HG=F": 0.015, "SI=F": 0.018,
+    "KC=F": 0.02, "ZS=F": 0.012, "ZC=F": 0.013,
+    "BTC-USD": 0.035, "ETH-USD": 0.045, "DX-Y.NYB": 0.004,
   };
 
   const base = baseValues[symbol] || 100;
