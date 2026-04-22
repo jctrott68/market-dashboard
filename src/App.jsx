@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Activity, RefreshCw, Clock, Wifi, WifiOff } from "lucide-react";
 import IndexCard from "./components/IndexCard";
+import SectorBreadthCard from "./components/SectorBreadthCard";
 import ChartPanel from "./components/ChartPanel";
 import MarketSummary from "./components/MarketSummary";
 import NewsSection from "./components/NewsSection";
@@ -152,13 +153,16 @@ export default function App() {
       </header>
 
       <main className="app-main">
-        <MarketSummary quotes={quotes} myStocks={myStocks} stockQuotes={stockQuotes} />
+        <MarketSummary quotes={quotes} />
 
         <div className={`indexes-section ${loading ? "loading" : ""}`}>
           {groupedIndexes.map(({ category, indexes }) => (
             <div key={category} className="category-group">
               <h3 className="category-label">{CATEGORY_LABELS[category]}</h3>
               <div className="cards-row">
+                {category === "sectors" && (
+                  <SectorBreadthCard indexes={indexes} quotes={quotes} />
+                )}
                 {indexes.map((index) => (
                   <IndexCard
                     key={index.symbol}

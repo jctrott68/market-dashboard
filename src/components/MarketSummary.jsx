@@ -44,23 +44,20 @@ function calcSentiment(avgChange, advances, total, vixPrice, yieldChange) {
   return { label: display, color, icon, score };
 }
 
-export default function MarketSummary({ quotes, myStocks = [], stockQuotes = {} }) {
+export default function MarketSummary({ quotes }) {
   const equityIndexes = INDEXES.filter((i) => i.category === "equity");
+  const sectorIndexes = INDEXES.filter((i) => i.category === "sectors");
 
-  const indexAdvances = equityIndexes.filter((i) => (quotes[i.symbol]?.change ?? 0) > 0).length;
-  const indexDeclines = equityIndexes.filter((i) => (quotes[i.symbol]?.change ?? 0) < 0).length;
-  const stockAdvances = myStocks.filter((s) => (stockQuotes[s.symbol]?.change ?? 0) > 0).length;
-  const stockDeclines = myStocks.filter((s) => (stockQuotes[s.symbol]?.change ?? 0) < 0).length;
-  const advances = indexAdvances + stockAdvances;
-  const declines = indexDeclines + stockDeclines;
-  const total = equityIndexes.length + myStocks.filter((s) => stockQuotes[s.symbol] != null).length;
+  // Breadth based on sectors only (for sentiment score)
+  const sectorAdvances = sectorIndexes.filter((i) => (quotes[i.symbol]?.change ?? 0) > 0).length;
+  const sectorTotal    = sectorIndexes.filter((i) => quotes[i.symbol] != null).length;
 
   const vix = quotes["^VIX"];
   const tnx = quotes["^TNX"];
 
   const avgChange = equityIndexes.reduce((sum, i) => sum + (quotes[i.symbol]?.changePct ?? 0), 0) / equityIndexes.length;
   const yieldChange = tnx?.price != null && tnx?.prevClose != null ? tnx.price - tnx.prevClose : null;
-  const sentiment = calcSentiment(avgChange, advances, total, vix?.price ?? null, yieldChange);
+  const sentiment = calcSentiment(avgChange, sectorAdvances, sectorTotal, vix?.price ?? null, yieldChange);
 
   const vixColor = !vix ? "#94a3b8"
     : vix.price > 25 ? "#ef4444"
@@ -95,16 +92,6 @@ export default function MarketSummary({ quotes, myStocks = [], stockQuotes = {} 
         <span className="summary-label">Market Sentiment</span>
         <span className="summary-value" style={{ color: sentiment.color }}>
           {sentiment.icon} {sentiment.label}
-        </span>
-      </div>
-
-      <div className="summary-pill">
-        <span className="summary-label">Advances / Declines</span>
-        <span className="summary-value">
-          <span style={{ color: "#10b981" }}>{advances}↑</span>
-          {" / "}
-          <span style={{ color: "#ef4444" }}>{declines}↓</span>
-          {myStocks.length > 0 && <span style={{ color: "var(--text-muted)", fontSize: "11px", marginLeft: "4px" }}>of {total}</span>}
         </span>
       </div>
 
