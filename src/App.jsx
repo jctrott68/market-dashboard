@@ -10,9 +10,9 @@ import { INDEXES, getCurrentQuotes, MARKET_STATUS } from "./data/marketData";
 import { getQuotesWithFallback, getBatchQuotes, lookupTicker } from "./api/marketApi";
 import "./App.css";
 
-const CATEGORY_ORDER = ["equity", "sectors", "volatility", "bonds", "commodities", "crypto", "fx"];
+const CATEGORY_ORDER = ["equity", "sectors", "bonds", "commodities", "crypto", "fx"];
 const CATEGORY_LABELS = {
-  equity: "Equities", sectors: "Sectors", bonds: "Fixed Income", volatility: "Volatility",
+  equity: "Equities", sectors: "Sectors", bonds: "Fixed Income",
   commodities: "Commodities", crypto: "Crypto", fx: "Currencies",
 };
 const AUTO_REFRESH_MS = 30_000;

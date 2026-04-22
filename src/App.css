@@ -151,6 +151,17 @@ body {
   letter-spacing: 0.5px;
 }
 
+.summary-pill--vix {
+  min-width: 220px;
+}
+
+.summary-sparkline {
+  margin-top: 6px;
+  margin-left: -18px;
+  margin-right: -18px;
+  margin-bottom: -12px;
+}
+
 .summary-value {
   font-size: 14px;
   font-weight: 600;

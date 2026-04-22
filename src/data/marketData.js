@@ -16,7 +16,6 @@ export const INDEXES = [
   { symbol: "XLU",  name: "Utilities",             short: "XLU",  category: "sectors" },
   { symbol: "XLRE", name: "Real Estate",           short: "XLRE", category: "sectors" },
   { symbol: "XLB",  name: "Materials",             short: "XLB",  category: "sectors" },
-  { symbol: "^VIX", name: "VIX", short: "VIX", category: "volatility" },
   { symbol: "^TNX", name: "10Y Treasury", short: "10YR", category: "bonds" },
   { symbol: "^TYX", name: "30Y Treasury", short: "30YR", category: "bonds" },
   { symbol: "MUB", name: "Muni Bonds", short: "MUB", category: "bonds" },
