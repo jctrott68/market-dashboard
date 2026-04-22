@@ -29,10 +29,11 @@ export const INDEXES = [
   { symbol: "ZC=F", name: "Corn", short: "CORN", category: "commodities" },
   { symbol: "BTC-USD", name: "Bitcoin", short: "BTC", category: "crypto" },
   { symbol: "ETH-USD", name: "Ethereum", short: "ETH", category: "crypto" },
-  { symbol: "DX-Y.NYB", name: "US Dollar", short: "DXY", category: "fx" },
-  { symbol: "GBPUSD=X", name: "Sterling", short: "GBP", category: "fx" },
-  { symbol: "EURUSD=X", name: "Euro", short: "EUR", category: "fx" },
-  { symbol: "JPY=X", name: "Yen", short: "JPY", category: "fx" },
+  { symbol: "GBPUSD=X",  name: "Sterling",       short: "GBP", category: "fx" },
+  { symbol: "EURUSD=X",  name: "Euro",            short: "EUR", category: "fx" },
+  { symbol: "JPY=X",     name: "Yen",             short: "JPY", category: "fx" },
+  { symbol: "CADUSD=X",  name: "Canadian Dollar", short: "CAD", category: "fx" },
+  { symbol: "MXNUSD=X",  name: "Mexican Peso",    short: "MXN", category: "fx" },
 ];
 
 function seededRandom(seed) {
@@ -51,7 +52,8 @@ export function generateHistoricalData(symbol, days = 90) {
     "^VIX": 18, "^TNX": 4.35, "^TYX": 4.6, "GC=F": 2310,
     "CL=F": 82, "NG=F": 2.1, "HG=F": 4.2, "SI=F": 27,
     "KC=F": 195, "ZS=F": 1180, "ZC=F": 450,
-    "BTC-USD": 68000, "ETH-USD": 3400, "DX-Y.NYB": 104,
+    "BTC-USD": 68000, "ETH-USD": 3400,
+    "CADUSD=X": 0.72, "MXNUSD=X": 0.055,
   };
   const volatilities = {
     "^GSPC": 0.008, "^DJI": 0.007, "^IXIC": 0.012, "^RUT": 0.014,
@@ -60,7 +62,8 @@ export function generateHistoricalData(symbol, days = 90) {
     "^VIX": 0.06, "^TNX": 0.012, "^TYX": 0.01, "GC=F": 0.009,
     "CL=F": 0.018, "NG=F": 0.03, "HG=F": 0.015, "SI=F": 0.018,
     "KC=F": 0.02, "ZS=F": 0.012, "ZC=F": 0.013,
-    "BTC-USD": 0.035, "ETH-USD": 0.045, "DX-Y.NYB": 0.004,
+    "BTC-USD": 0.035, "ETH-USD": 0.045,
+    "CADUSD=X": 0.004, "MXNUSD=X": 0.006,
   };
 
   const base = baseValues[symbol] || 100;

@@ -13,7 +13,7 @@ import "./App.css";
 
 const CATEGORY_ORDER = ["equity", "sectors", "bonds", "commodities", "crypto", "fx"];
 const CATEGORY_LABELS = {
-  equity: "Equities", sectors: "Sectors", bonds: "Fixed Income",
+  equity: "Equities", sectors: "S&P 500 Sectors", bonds: "Fixed Income",
   commodities: "Commodities", crypto: "Crypto", fx: "Currencies",
 };
 const AUTO_REFRESH_MS = 30_000;

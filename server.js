@@ -21,7 +21,7 @@ const SYMBOLS = [
   "^VIX", "^TNX", "^TYX", "MUB",
   "GC=F", "CL=F", "NG=F", "HG=F", "SI=F", "KC=F", "ZS=F", "ZC=F",
   "BTC-USD", "ETH-USD",
-  "DX-Y.NYB", "GBPUSD=X", "EURUSD=X", "JPY=X",
+  "GBPUSD=X", "EURUSD=X", "JPY=X", "CADUSD=X", "MXNUSD=X",
 ];
 
 const RANGE_MAP = {
