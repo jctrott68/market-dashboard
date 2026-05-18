@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { Activity, RefreshCw, Clock, Wifi, WifiOff } from "lucide-react";
 import IndexCard from "./components/IndexCard";
 import SectorBreadthCard from "./components/SectorBreadthCard";
+import YieldCurveCard from "./components/YieldCurveCard";
 import ChartPanel from "./components/ChartPanel";
 import MarketSummary from "./components/MarketSummary";
 import NewsSection from "./components/NewsSection";
@@ -162,6 +163,9 @@ export default function App() {
               <div className="cards-row">
                 {category === "sectors" && (
                   <SectorBreadthCard indexes={indexes} quotes={quotes} />
+                )}
+                {category === "bonds" && (
+                  <YieldCurveCard />
                 )}
                 {indexes.map((index) => (
                   <IndexCard

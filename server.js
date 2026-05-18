@@ -306,6 +306,43 @@ app.get("/api/economy", async (req, res) => {
   }
 });
 
+// ── Yield Curve Spread (10Y – 2Y via FRED) ─────────────────────────────────
+app.get("/api/yield-curve", async (req, res) => {
+  if (!process.env.FRED_API_KEY) return res.json({ needsKey: true });
+  try {
+    const limit = 300; // ~1 year of daily trading days + buffer
+    const [obs2, obs10] = await Promise.all([
+      fetchFred("DGS2",  limit),
+      fetchFred("DGS10", limit),
+    ]);
+    const map2  = Object.fromEntries(obs2.map((o) => [o.date, o.value]));
+    const map10 = Object.fromEntries(obs10.map((o) => [o.date, o.value]));
+
+    // Keep only dates that have both yields, sorted ascending
+    const history = obs10
+      .filter((o) => map2[o.date] != null)
+      .sort((a, b) => a.date.localeCompare(b.date))
+      .map((o) => ({
+        date:   formatFredDate(o.date),
+        spread: parseFloat((o.value - map2[o.date]).toFixed(3)),
+        y10:    o.value,
+        y2:     map2[o.date],
+      }));
+
+    const cur  = history[history.length - 1];
+    const prev = history[history.length - 2];
+    res.json({
+      spread: cur?.spread  ?? null,
+      change: cur && prev  ? parseFloat((cur.spread - prev.spread).toFixed(3)) : null,
+      y10:    cur?.y10     ?? null,
+      y2:     cur?.y2      ?? null,
+      history: history.slice(-260), // ~1 year
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.get("/api/news", async (req, res) => {
   try {
     res.json(await fetchNews());

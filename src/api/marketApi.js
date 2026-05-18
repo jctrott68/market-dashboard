@@ -41,6 +41,45 @@ export async function getQuotesWithFallback(indexes) {
   }
 }
 
+export async function getYieldCurveData() {
+  try {
+    const res = await fetch(`${API}/api/yield-curve`);
+    if (!res.ok) throw new Error("Yield curve fetch failed");
+    const data = await res.json();
+    if (data.needsKey || data.spread == null) throw new Error("No data");
+    return data;
+  } catch {
+    // Simulated fallback: gradual normalization from inversion
+    const history = [];
+    let spread = -0.95;
+    const days = 260;
+    for (let i = days; i >= 0; i--) {
+      const d = new Date("2026-04-20");
+      d.setDate(d.getDate() - i);
+      if (d.getDay() === 0 || d.getDay() === 6) continue;
+      spread += (0.0025 + (Math.random() - 0.45) * 0.04);
+      spread = Math.max(-1.5, Math.min(1.5, spread));
+      const y2  = 4.85 - spread * 0.3;
+      const y10 = y2 + spread;
+      history.push({
+        date:   d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+        spread: parseFloat(spread.toFixed(3)),
+        y10:    parseFloat(y10.toFixed(3)),
+        y2:     parseFloat(y2.toFixed(3)),
+      });
+    }
+    const cur  = history[history.length - 1];
+    const prev = history[history.length - 2];
+    return {
+      spread:  cur.spread,
+      change:  parseFloat((cur.spread - prev.spread).toFixed(3)),
+      y10:     cur.y10,
+      y2:      cur.y2,
+      history,
+    };
+  }
+}
+
 export async function getChartDataWithFallback(symbol, rangeLabel) {
   try {
     const data = await getLiveChartData(symbol, rangeLabel);

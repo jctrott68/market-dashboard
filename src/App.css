@@ -386,6 +386,75 @@ body {
 .sb-mover-up .sb-mover-val   { color: var(--up); }
 .sb-mover-down .sb-mover-val { color: var(--down); }
 
+/* ─── Yield Curve Card ──────────────────────────────── */
+.yc-card {
+  min-width: 180px;
+  max-width: 240px;
+  flex: 1;
+  padding: 14px 16px 0;
+  background: #1e2535;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow: hidden;
+}
+
+.yc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.yc-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #8b5cf6;
+  letter-spacing: 0.3px;
+}
+
+.yc-status {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.yc-subtitle {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: -2px;
+}
+
+.yc-spread {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.yc-change {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.yc-yields {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.yc-yields strong { color: var(--text-dim); font-weight: 600; }
+.yc-divider { color: var(--text-muted); }
+
+.yc-sparkline {
+  margin: 4px -16px 0;
+}
+
 /* ─── Chart Panel ───────────────────────────────────── */
 .chart-panel {
   background: var(--surface);
