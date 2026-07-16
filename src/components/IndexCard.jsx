@@ -24,9 +24,6 @@ function formatPrice(price, symbol) {
 
 export default function IndexCard({ index, quote, onClick, isSelected, loading }) {
   const { symbol, name, short, category } = index;
-  const { price, change, changePct } = quote;
-  const isUp = change >= 0;
-  const isFlat = Math.abs(changePct) < 0.01;
   const color = CATEGORY_COLORS[category];
 
   const [chartData, setChartData] = useState([]);
@@ -38,6 +35,11 @@ export default function IndexCard({ index, quote, onClick, isSelected, loading }
     });
     return () => { cancelled = true; };
   }, [symbol]);
+
+  if (!quote) return null;
+  const { price, change, changePct } = quote;
+  const isUp = change >= 0;
+  const isFlat = Math.abs(changePct) < 0.01;
 
   return (
     <button

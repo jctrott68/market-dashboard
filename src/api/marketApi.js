@@ -31,13 +31,14 @@ export async function getBatchQuotes(symbols) {
 }
 
 export async function getQuotesWithFallback(indexes) {
+  const mockQuotes = getCurrentQuotes();
   try {
     const data = await getLiveQuotes();
-    if (Object.keys(data).length > 0) return data;
+    if (Object.keys(data).length > 0) return { ...mockQuotes, ...data };
     throw new Error("Empty quote response");
   } catch (err) {
     console.warn("Live quote fetch failed, using mock data:", err.message);
-    return getCurrentQuotes();
+    return mockQuotes;
   }
 }
 
